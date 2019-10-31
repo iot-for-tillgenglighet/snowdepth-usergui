@@ -4,21 +4,24 @@ using System.Threading.Tasks;
 
 namespace snowdepth_usergui.Data
 {
-	public class WeatherForecastService
+	public class MeasurementService
 	{
-		private static readonly string[] Summaries = new[]
+		private static readonly string[] Comments = new[]
 		{
-			"Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+			"Hovsgatan", "Kungsgatan", "Kungsgatan, drivsnö", "Hovsgatan, fordon har passerat", "Torget, osäker mätning pga drivsnö"
 		};
 
-		public Task<WeatherForecast[]> GetForecastAsync(DateTime startDate)
+		public Task<Measurement[]> GetMeasurementsAsync(DateTime startDate)
 		{
 			var rng = new Random();
-			return Task.FromResult(Enumerable.Range(1, 5).Select(index => new WeatherForecast
+			return Task.FromResult(Enumerable.Range(1, 9).Select(index => new Measurement
 			{
-				Date = startDate.AddDays(index),
-				TemperatureC = rng.Next(-20, 55),
-				Summary = Summaries[rng.Next(Summaries.Length)]
+				Date = startDate.AddDays(index).AddMinutes(rng.Next(1,180)),
+				TemperatureC = rng.Next(-20, 5),
+				Snowdepth = rng.Next(0, 100),
+				Comment = Comments[rng.Next(Comments.Length)],
+				Longitude = 18.068580800000063,
+				Latitude = 59.32932349
 			}).ToArray());
 		}
 	}

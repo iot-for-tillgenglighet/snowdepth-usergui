@@ -1,16 +1,51 @@
 ﻿@page "/counter"
+@using snowdepth_usergui.Data
 
-<h1>Counter</h1>
+<h1>Registrera mätvärde</h1>
 
-<p>Current count: @currentCount</p>
+<p>När ett mätvärde registreras sparas även tid och plats.</p>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<EditForm Model="@Model" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit">
+	<div class="alert @StatusClass">@StatusMessage</div>
 
-@code {
-    int currentCount = 0;
+	<DataAnnotationsValidator />
+	<ValidationSummary />
 
-    void IncrementCount()
-    {
-        currentCount++;
-    }
+	<div class="form-group">
+		<label for="depth">Snödjup: </label>
+		<InputNumber Id="depth" Class="form-control" @bind-Value="@Model.Snowdepth"></InputNumber>
+		<ValidationMessage For="@(() => Model.Snowdepth)" />
+	</div>
+	<div class="form-group">
+		<label for="depth">Temperatur: </label>
+		<InputNumber Id="temperature" Class="form-control" @bind-Value="@Model.TemperatureC"></InputNumber>
+		<ValidationMessage For="@(() => Model.TemperatureC)" />
+	</div>
+	<div class="form-group">
+		<label for="comment">Kommentar: </label>
+		<InputTextArea Id="comment" Class="form-control" @bind-Value="@Model.Comment"></InputTextArea>
+		<ValidationMessage For="@(() => Model.Comment)" />
+	</div>
+	<button type="submit">Registrera mätvärde</button>
+
+</EditForm>
+
+@code
+{
+	private string StatusMessage;
+	private string StatusClass;
+
+	private Measurement Model = new Measurement();
+
+	protected void HandleValidSubmit()
+	{
+		StatusClass = "alert-info";
+		StatusMessage = DateTime.Now.ToString("yyyy-MM-dd HH:ss") + " - Mätvärdet, plats och tidpunkt sparades korrekt";
+	}
+
+	protected void HandleInvalidSubmit()
+	{
+		StatusClass = "alert-danger";
+		StatusMessage = DateTime.Now.ToString("yyyy-MM-dd HH:ss") + " - Mätvärdet misslyckades att sparas";
+	}
 }

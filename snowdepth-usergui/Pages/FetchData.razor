@@ -1,46 +1,52 @@
 ﻿@page "/fetchdata"
-
 @using snowdepth_usergui.Data
-@inject WeatherForecastService ForecastService
+@inject MeasurementService MeasurementService
 
-<h1>Weather forecast</h1>
 
-<p>This component demonstrates fetching data from a service.</p>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<h1>Registrerade mätvärden</h1>
+
+<p>Nedan listas tidigare registrerade mätvärden gjorda av dig.</p>
 
 @if (forecasts == null)
 {
-    <p><em>Loading...</em></p>
+	<p><em>Loading...</em></p>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+	<!--map component-->
+
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Datum</th>
+				<th>Temperatur (C)</th>
+				<th>Snödjup (mm)</th>
+				<th>Karta</th>
+				<th>Kommentar</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var forecast in forecasts.OrderByDescending(d => d.Date))
+			{
+				<tr>
+					<td>@forecast.Date.ToString("yyyy-MM-dd HH:mm")</td>
+					<td>@forecast.TemperatureC</td>
+					<td>@forecast.Snowdepth</td>
+					<td style="padding-left:20px"><i class="fa fa-blind"></i></td>
+					<td>@forecast.Comment</td>
+				</tr>
+			}
+		</tbody>
+	</table>
 }
 
 @code {
-    WeatherForecast[] forecasts;
+	Measurement[] forecasts;
 
-    protected override async Task OnInitializedAsync()
-    {
-        forecasts = await ForecastService.GetForecastAsync(DateTime.Now);
-    }
+	protected override async Task OnInitializedAsync()
+	{
+		forecasts = await MeasurementService.GetMeasurementsAsync(DateTime.Now.AddDays(-10));
+	}
 }
