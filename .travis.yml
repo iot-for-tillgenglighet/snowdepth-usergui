@@ -3,9 +3,10 @@
 mono: none
 language: csharp
 dotnet: 3.0
-solution: .\snowdepth-usergui\snowdepth-usergui.sln
+services:
+  - docker
 script:
-  - dotnet restore
+  - dotnet restore ./snowdepth-usergui/snowdepth-usergui.sln
 before_install:
   - echo "$DOCKER_PASSWORD" | docker login docker.pkg.github.com -u "$DOCKER_USERNAME" --password-stdin
   - docker build -f snowdepth-usergui/Dockerfile -t github.com/iot-for-tillgenglighet/snowdepth-usergui ./snowdepth-usergui
