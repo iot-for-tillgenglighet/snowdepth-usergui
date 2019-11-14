@@ -1,8 +1,8 @@
 ﻿notifications:
   email: false
 mono: none
-dotnet: 3.0
 language: csharp
+dotnet: 3.0
 solution: snowdepth-usergui.sln
 script:
   - dotnet restore
