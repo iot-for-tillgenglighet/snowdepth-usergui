@@ -3,7 +3,7 @@
 mono: none
 language: csharp
 dotnet: 3.0
-solution: snowdepth-usergui.sln
+solution: ./snowdepth-usergui/snowdepth-usergui.sln
 script:
   - dotnet restore
 before_install:
