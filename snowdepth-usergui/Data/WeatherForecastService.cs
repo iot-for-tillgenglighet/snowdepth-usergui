@@ -1,5 +1,9 @@
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace snowdepth_usergui.Data
@@ -11,18 +15,84 @@ namespace snowdepth_usergui.Data
 			"Hovsgatan", "Kungsgatan", "Kungsgatan, drivsnö", "Hovsgatan, fordon har passerat", "Torget, osäker mätning pga drivsnö"
 		};
 
-		public Task<Measurement[]> GetMeasurementsAsync(DateTime startDate)
+		public static async Task SetMeasurementsAsync(int depth)
 		{
-			var rng = new Random();
-			return Task.FromResult(Enumerable.Range(1, 9).Select(index => new Measurement
+			var query = @"mutation {addSnowdepthMeasurement(input: {pos: {lon:17.946908, lat: 62.637526},depth: "+depth.ToString()+",}) {manual}}";
+
+			var postData = new { Query = query };
+			var stringContent = new StringContent(JsonConvert.SerializeObject(postData), Encoding.UTF8, "application/json");
+
+			var postUri = "http://iotsundsvall.northeurope.cloudapp.azure.com/api/graphql";
+
+			var httpClient = new HttpClient();
+
+			var res = await httpClient.PostAsync(postUri, stringContent);
+			if (res.IsSuccessStatusCode)
 			{
-				Date = startDate.AddDays(index).AddMinutes(rng.Next(1,180)),
-				TemperatureC = rng.Next(-20, 5),
-				Snowdepth = rng.Next(0, 100),
-				Comment = Comments[rng.Next(Comments.Length)],
-				Longitude = 18.068580800000063,
-				Latitude = 59.32932349
-			}).ToArray());
+				var content = await res.Content.ReadAsStringAsync();
+			}
+			else
+			{
+				string error = $"Error occurred... Status code:{res.StatusCode}";
+			}
+		}
+
+		public async Task<Measurement[]> GetMeasurementsAsync()
+		{
+			var query = @"{
+				snowdepths {
+				depth,
+				when,
+				from {
+					pos {
+					lat 
+					lon
+					}
+				},
+				manual
+				}
+				}";
+
+			var postData = new { Query = query };
+			var stringContent = new StringContent(JsonConvert.SerializeObject(postData), Encoding.UTF8, "application/json");
+
+			var postUri = "http://iotsundsvall.northeurope.cloudapp.azure.com/api/graphql";
+
+			var httpClient = new HttpClient();
+
+			SnowdepthData measurements = new SnowdepthData();
+
+			var res = await httpClient.PostAsync(postUri, stringContent);
+			if (res.IsSuccessStatusCode)
+			{
+				var content = await res.Content.ReadAsStringAsync();
+				measurements = JsonConvert.DeserializeObject<SnowdepthData>(content);
+			}
+			else
+			{
+				string error = $"Error occurred... Status code:{res.StatusCode}";
+			}
+
+			List<Measurement> resultMeasurements = new List<Measurement>();
+			foreach (Snowdepth snowdepth in measurements.Data.Snowdepths)
+			{
+				Measurement measurement = new Measurement();
+
+				//TimeZoneInfo myTimeZone = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
+				TimeZoneInfo myTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Budapest");
+				DateTime when = TimeZoneInfo.ConvertTimeFromUtc(snowdepth.When, myTimeZone);
+
+				measurement.Date = when;
+				measurement.TemperatureC = null;
+				measurement.Comment = " - ";
+				measurement.Snowdepth = int.Parse(Math.Round(snowdepth.Depth,0).ToString());
+				measurement.Longitude = snowdepth.From.Pos.Lon;
+				measurement.Latitude = snowdepth.From.Pos.Lat;
+
+				resultMeasurements.Add(measurement);
+			}
+
+			return resultMeasurements.ToArray();
 		}
 	}
 }

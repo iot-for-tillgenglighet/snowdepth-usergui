@@ -21,7 +21,7 @@ else
 		<thead>
 			<tr>
 				<th>Datum</th>
-				<th>Temperatur (C)</th>
+				<th>Temperatur (°C)</th>
 				<th>Snödjup (mm)</th>
 				<th>Karta</th>
 				<th>Kommentar</th>
@@ -43,10 +43,10 @@ else
 }
 
 @code {
+ 
 	Measurement[] forecasts;
-
 	protected override async Task OnInitializedAsync()
 	{
-		forecasts = await MeasurementService.GetMeasurementsAsync(DateTime.Now.AddDays(-10));
+		forecasts = await MeasurementService.GetMeasurementsAsync();
 	}
 }

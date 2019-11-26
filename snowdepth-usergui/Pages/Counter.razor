@@ -12,12 +12,12 @@
 	<ValidationSummary />
 
 	<div class="form-group">
-		<label for="depth">Snödjup: </label>
+		<label for="depth">Snödjup (mm): </label>
 		<InputNumber Id="depth" Class="form-control" @bind-Value="@Model.Snowdepth"></InputNumber>
 		<ValidationMessage For="@(() => Model.Snowdepth)" />
 	</div>
 	<div class="form-group">
-		<label for="depth">Temperatur: </label>
+		<label for="depth">Temperatur (°C): </label>
 		<InputNumber Id="temperature" Class="form-control" @bind-Value="@Model.TemperatureC"></InputNumber>
 		<ValidationMessage For="@(() => Model.TemperatureC)" />
 	</div>
@@ -39,13 +39,23 @@
 
 	protected void HandleValidSubmit()
 	{
+		//TimeZoneInfo myTimeZone = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
+		TimeZoneInfo myTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Budapest");
+		DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, myTimeZone);
+
+		MeasurementService.SetMeasurementsAsync(Model.Snowdepth.Value);
+
 		StatusClass = "alert-info";
-		StatusMessage = DateTime.Now.ToString("yyyy-MM-dd HH:ss") + " - Mätvärdet, plats och tidpunkt sparades korrekt";
+
+		StatusMessage = now.ToString("yyyy-MM-dd HH:mm") + " - Mätvärdet, plats och tidpunkt sparades korrekt";
 	}
 
 	protected void HandleInvalidSubmit()
 	{
+		TimeZoneInfo myTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Budapest");
+		DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, myTimeZone);
+
 		StatusClass = "alert-danger";
-		StatusMessage = DateTime.Now.ToString("yyyy-MM-dd HH:ss") + " - Mätvärdet misslyckades att sparas";
+		StatusMessage = now.ToString("yyyy-MM-dd HH:mm") + " - Mätvärdet misslyckades att sparas";
 	}
 }
