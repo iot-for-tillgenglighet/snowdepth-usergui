@@ -26,6 +26,13 @@ namespace snowdepth_usergui
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services.AddCors(options => {
+				options.AddPolicy("AllowAllOrigins",
+					builder => 
+					{
+						builder.AllowAnyOrigin();
+					});
+			});
 			services.AddRazorPages();
 			services.AddServerSideBlazor();
 			services.AddSingleton<MeasurementService>();
@@ -45,6 +52,7 @@ namespace snowdepth_usergui
 				app.UseHsts();
 			}
 
+			app.UseCors("AllowAllOrigins");
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
 
