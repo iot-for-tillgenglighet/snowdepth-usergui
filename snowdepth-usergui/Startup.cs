@@ -54,6 +54,7 @@ namespace snowdepth_usergui
 
 			app.UseCors("AllowAllOrigins");
 			app.UseHttpsRedirection();
+			app.UsePathBase("/snowdepth/");
 			app.UseStaticFiles();
 
 			app.UseRouting();
